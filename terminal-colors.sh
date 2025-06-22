@@ -23,10 +23,10 @@ NEW_PROFILE_ID=$(uuidgen)
 # Catppuccin Mocha colors
 BACKGROUND="#1e1e2e"
 FOREGROUND="#cdd6f4"
-# ANSI colors mapping:
-# 0: Black (Surface1), 1: Red, 2: Green, 3: Yellow, 4: Blue, 5: Magenta (Pink), 6: Cyan (Teal), 7: White (Subtext1)
-# 8: Bright Black (Surface2), 9: Bright Red (Peach), 10: Bright Green, 11: Bright Yellow, 12: Bright Blue (Sky), 13: Bright Magenta (Mauve), 14: Bright Cyan, 15: Bright White (Text)
-PALETTE="['#45475a', '#f38ba8', '#a6e3a1', '#f9e2af', '#89b4fa', '#f5c2e7', '#94e2d5', '#bac2de', '#585b70', '#fab387', '#a6e3a1', '#f9e2af', '#89dceb', '#cba6f7', '#94e2d5', '#cdd6f4']"
+# ANSI colors with proper dark/bright pairs:
+# 0: Black, 1: Red, 2: Green, 3: Yellow, 4: Blue, 5: Magenta, 6: Cyan, 7: White
+# 8: Bright Black, 9: Bright Red, 10: Bright Green, 11: Bright Yellow, 12: Bright Blue, 13: Bright Magenta, 14: Bright Cyan, 15: Bright White
+PALETTE="['#45475a', '#f38ba8', '#a6e3a1', '#f9e2af', '#89b4fa', '#f5c2e7', '#94e2d5', '#bac2de', '#585b70', '#eba0ac', '#94e2d5', '#fab387', '#74c7ec', '#cba6f7', '#89dceb', '#cdd6f4']"
 
 # Apply colors to current profile
 gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID/ background-color "$BACKGROUND"
