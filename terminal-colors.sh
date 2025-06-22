@@ -20,13 +20,13 @@ PROFILE_ID=${PROFILE_ID:1:-1} # Remove quotes
 dconf dump /org/gnome/terminal/legacy/profiles:/ > /tmp/gnome-terminal-profiles.dconf
 NEW_PROFILE_ID=$(uuidgen)
 
-# Catppuccin Mocha colors
-BACKGROUND="#1e1e2e"
-FOREGROUND="#cdd6f4"
-# ANSI colors with proper dark/bright pairs:
-# 0: Black, 1: Red, 2: Green, 3: Yellow, 4: Blue, 5: Magenta, 6: Cyan, 7: White
-# 8: Bright Black, 9: Bright Red, 10: Bright Green, 11: Bright Yellow, 12: Bright Blue, 13: Bright Magenta, 14: Bright Cyan, 15: Bright White
-PALETTE="['#45475a', '#f38ba8', '#a6e3a1', '#f9e2af', '#89b4fa', '#f5c2e7', '#94e2d5', '#bac2de', '#585b70', '#eba0ac', '#94e2d5', '#fab387', '#74c7ec', '#cba6f7', '#89dceb', '#cdd6f4']"
+# Catppuccin Mocha colors (based on Alacritty config)
+BACKGROUND="#1e1e2e"  # Base
+FOREGROUND="#cdd6f4"  # Text
+# ANSI colors: [normal: 0-7, bright: 8-15]
+# Normal:  black, red, green, yellow, blue, magenta, cyan, white
+# Bright:  same colors but from bright section
+PALETTE="['#45475a', '#f38ba8', '#a6e3a1', '#f9e2af', '#89b4fa', '#f5c2e7', '#94e2d5', '#bac2de', '#585b70', '#f38ba8', '#a6e3a1', '#f9e2af', '#89b4fa', '#f5c2e7', '#94e2d5', '#a6adc8']"
 
 # Apply colors to current profile
 gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID/ background-color "$BACKGROUND"
@@ -36,6 +36,10 @@ gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profi
 gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID/ use-theme-transparency false
 gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID/ font 'JetBrainsMono Nerd Font 12'
 gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID/ use-system-font false
+
+# Set TERM environment variable for xterm-256color support
+gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID/ custom-command 'env TERM=xterm-256color /bin/bash'
+gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID/ use-custom-command false
 
 # Set profile name
 gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID/ visible-name "$PROFILE_NAME"
