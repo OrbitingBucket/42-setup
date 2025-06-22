@@ -1,44 +1,4 @@
-### If setup fails:
-```bash
-# Run health check to see what's missing
-curl -sSL https://raw.githubusercontent.com/USERNAME/42-setup/main/health-check.sh | bash
-```
-
-### Common issues:
-- **Permission denied**: Some schools restrict `chsh` command (shell change)
-- **Git not configured**: Run the git-setup script separately
-- **Norminette not found**: Install when you need it from 42 intranet
-- **SSH key issues**: Follow the GitHub setup instructions in git-setup
-
-### Reset configuration:
-```bash
-# Backup and reset if needed
-mv ~/.vimrc ~/.vimrc.backup
-mv ~/.zshrc ~/.zshrc.backup
-mv ~/.42_aliases ~/.42_aliases.backup
-
-# Re-run setup
-curl -sSL https://raw.githubusercontent.com/USERNAME/42-setup/main/setup.sh | bash
-```
-
----
-
-## 🌍 École 42 Worldwide
-
-### Supports all 42 campuses:
-- **Paris, France** 🇫🇷
-- **Madrid, Spain** 🇪🇸
-- **Barcelona, Spain** 🇪🇸
-- **London, UK** 🇬🇧
-- **Berlin, Germany** 🇩🇪
-- **Vienna, Austria** 🇦🇹
-- **Brussels, Belgium** 🇧🇪
-- **Amsterdam, Netherlands** 🇳🇱
-- **Helsinki, Finland** 🇫🇮
-- **Rome, Italy** 🇮🇹
-- **Istanbul, Turkey** 🇹🇷
-- **Tokyo, Japan** 🇯🇵
-- **Seoul, South Korea**# 42 École Setup
+# 42 École Setup
 
 Quick and efficient development environment setup for École 42 students worldwide.
 
@@ -46,17 +6,17 @@ Quick and efficient development environment setup for École 42 students worldwi
 
 ### One-Line Setup (Recommended)
 ```bash
-curl -sSL https://raw.githubusercontent.com/USERNAME/42-setup/main/setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/OrbitingBucket/42-setup/main/setup.sh | bash
 ```
 
 ### Configure Git (After Environment Setup)
 ```bash
-curl -sSL https://raw.githubusercontent.com/USERNAME/42-setup/main/git-setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/OrbitingBucket/42-setup/main/git-setup.sh | bash
 ```
 
 ### Health Check (Verify Everything Works)
 ```bash
-curl -sSL https://raw.githubusercontent.com/USERNAME/42-setup/main/health-check.sh | bash
+curl -sSL https://raw.githubusercontent.com/OrbitingBucket/42-setup/main/health-check.sh | bash
 ```
 
 **Total setup time: ~3 minutes**
@@ -92,7 +52,7 @@ If you prefer to inspect the scripts first:
 
 ```bash
 # Clone the repository
-git clone https://github.com/USERNAME/42-setup.git
+git clone https://github.com/OrbitingBucket/42-setup.git
 cd 42-setup
 
 # Make scripts executable
@@ -190,7 +150,7 @@ reload          # Reload shell configuration
 ### If setup fails:
 ```bash
 # Run health check to see what's missing
-curl -sSL https://raw.githubusercontent.com/USERNAME/42-setup/main/health-check.sh | bash
+curl -sSL https://raw.githubusercontent.com/OrbitingBucket/42-setup/main/health-check.sh | bash
 ```
 
 ### Common issues:
@@ -207,7 +167,7 @@ mv ~/.zshrc ~/.zshrc.backup
 mv ~/.42_aliases ~/.42_aliases.backup
 
 # Re-run setup
-curl -sSL https://raw.githubusercontent.com/USERNAME/42-setup/main/setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/OrbitingBucket/42-setup/main/setup.sh | bash
 ```
 
 ---

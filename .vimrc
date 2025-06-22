@@ -5,9 +5,17 @@
 " Basic Settings
 " ============================================================================
 
+" Enable syntax highlighting
+syntax enable
+syntax on
+
+" Enable file type detection and plugins
+filetype on
+filetype plugin on
+filetype indent on
+
 " Line numbers
 set number
-set relativenumber
 
 " Indentation and tabs (42 norm: 4 spaces, no tabs)
 set tabstop=4
@@ -26,7 +34,6 @@ set hlsearch
 " Interface
 set mouse=a
 set showmatch
-set cursorline
 set ruler
 set showcmd
 set laststatus=2
@@ -172,9 +179,9 @@ set completeopt=menuone,noselect
 highlight ColorColumn ctermbg=red guibg=#ff6b6b
 call matchadd('ColorColumn', '\%81v', 100)
 
-" Show trailing whitespace
-set list
-set listchars=tab:→\ ,trail:•,nbsp:␣
+" Clean interface - no visible whitespace chars
+" set list
+" set listchars=tab:→\ ,trail:•,nbsp:␣
 
 " ============================================================================
 " Key Mappings
