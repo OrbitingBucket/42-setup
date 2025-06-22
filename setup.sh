@@ -100,16 +100,22 @@ else
     print_warning "curl not available, skipping font installation"
 fi
 
-# 4. Download configuration files
-print_status "Downloading configuration files..."
+# 4. Set up enhanced Vim configuration
+print_status "Setting up enhanced Vim configuration..."
 REPO_URL="https://raw.githubusercontent.com/OrbitingBucket/42-setup/main"
 
-# Download .vimrc
-if ! curl -sSL "$REPO_URL/.vimrc" -o ~/.vimrc; then
-    print_error "Failed to download .vimrc"
-    ((issues++))
+# Run dedicated vim setup script
+if curl -sSL "$REPO_URL/vim-setup.sh" | bash; then
+    print_status "✅ Enhanced Vim setup completed"
 else
-    print_status "Downloaded .vimrc configuration"
+    print_warning "⚠️  Vim setup encountered issues, but continuing..."
+    # Fallback: download basic .vimrc
+    if ! curl -sSL "$REPO_URL/.vimrc" -o ~/.vimrc; then
+        print_error "Failed to download .vimrc"
+        ((issues++))
+    else
+        print_status "Downloaded basic .vimrc configuration"
+    fi
 fi
 
 # Download Catppuccin terminal color config

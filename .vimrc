@@ -91,143 +91,40 @@ if has('termguicolors')
 endif
 
 " ============================================================================
-" Catppuccin Mocha Color Scheme
+" Catppuccin Theme Configuration (Official Plugin)
 " ============================================================================
 
-" Define Catppuccin Mocha colors with corrected bright variants
-let g:catppuccin_mocha = {
-    \ 'rosewater': '#f5e0dc',
-    \ 'flamingo':  '#f2cdcd',
-    \ 'pink':      '#f5c2e7',
-    \ 'mauve':     '#cba6f7',
-    \ 'red':       '#f38ba8',
-    \ 'maroon':    '#eba0ac',
-    \ 'peach':     '#fab387',
-    \ 'yellow':    '#f9e2af',
-    \ 'green':     '#a6e3a1',
-    \ 'teal':      '#94e2d5',
-    \ 'sky':       '#89dceb',
-    \ 'sapphire':  '#74c7ec',
-    \ 'blue':      '#89b4fa',
-    \ 'lavender':  '#b4befe',
-    \ 'text':      '#cdd6f4',
-    \ 'subtext1':  '#bac2de',
-    \ 'subtext0':  '#a6adc8',
-    \ 'overlay2':  '#9399b2',
-    \ 'overlay1':  '#7f849c',
-    \ 'overlay0':  '#6c7086',
-    \ 'surface2':  '#585b70',
-    \ 'surface1':  '#45475a',
-    \ 'surface0':  '#313244',
-    \ 'base':      '#1e1e2e',
-    \ 'mantle':    '#181825',
-    \ 'crust':     '#11111b',
-    \ 'bright_red':     '#f37799',
-    \ 'bright_green':   '#89d88b',
-    \ 'bright_yellow':  '#ebd391',
-    \ 'bright_blue':    '#74a8fc',
-    \ 'bright_magenta': '#f2aede',
-    \ 'bright_cyan':    '#6bd7ca',
-    \ }
+" Enable true color support
+set termguicolors
 
-" Set terminal colors to match GNOME Terminal/Alacritty
-set t_Co=256
-if &term =~# '^xterm' || &term =~# '^screen' || &term =~# '^tmux'
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-endif
+" Set background before loading colorscheme
+set background=dark
 
-" Apply Catppuccin Mocha theme
-function! CatppuccinMocha()
-  set background=dark
-  
-  " Clear existing highlights
-  highlight clear
-  if exists("syntax_on")
-    syntax reset
-  endif
-  
-  let g:colors_name = "catppuccin_mocha"
-  
-  " UI Elements
-  exec 'highlight Normal guifg=' . g:catppuccin_mocha.text . ' guibg=' . g:catppuccin_mocha.base
-  exec 'highlight LineNr guifg=' . g:catppuccin_mocha.overlay1 . ' guibg=' . g:catppuccin_mocha.base
-  exec 'highlight CursorLineNr guifg=' . g:catppuccin_mocha.lavender . ' guibg=' . g:catppuccin_mocha.base . ' gui=bold'
-  exec 'highlight CursorLine guibg=' . g:catppuccin_mocha.surface0
-  exec 'highlight Visual guibg=' . g:catppuccin_mocha.surface1
-  exec 'highlight StatusLine guifg=' . g:catppuccin_mocha.text . ' guibg=' . g:catppuccin_mocha.mantle
-  exec 'highlight StatusLineNC guifg=' . g:catppuccin_mocha.overlay1 . ' guibg=' . g:catppuccin_mocha.mantle
-  exec 'highlight VertSplit guifg=' . g:catppuccin_mocha.overlay0 . ' guibg=' . g:catppuccin_mocha.base
-  exec 'highlight Pmenu guifg=' . g:catppuccin_mocha.text . ' guibg=' . g:catppuccin_mocha.surface0
-  exec 'highlight PmenuSel guifg=' . g:catppuccin_mocha.text . ' guibg=' . g:catppuccin_mocha.surface1
-  exec 'highlight Search guifg=' . g:catppuccin_mocha.base . ' guibg=' . g:catppuccin_mocha.yellow
-  exec 'highlight IncSearch guifg=' . g:catppuccin_mocha.base . ' guibg=' . g:catppuccin_mocha.peach
-  
-  " Syntax highlighting
-  exec 'highlight Comment guifg=' . g:catppuccin_mocha.overlay1 . ' gui=italic'
-  exec 'highlight Constant guifg=' . g:catppuccin_mocha.peach
-  exec 'highlight String guifg=' . g:catppuccin_mocha.green
-  exec 'highlight Character guifg=' . g:catppuccin_mocha.teal
-  exec 'highlight Number guifg=' . g:catppuccin_mocha.peach
-  exec 'highlight Boolean guifg=' . g:catppuccin_mocha.peach
-  exec 'highlight Float guifg=' . g:catppuccin_mocha.peach
-  exec 'highlight Identifier guifg=' . g:catppuccin_mocha.flamingo
-  exec 'highlight Function guifg=' . g:catppuccin_mocha.blue
-  exec 'highlight Statement guifg=' . g:catppuccin_mocha.mauve
-  exec 'highlight Conditional guifg=' . g:catppuccin_mocha.red
-  exec 'highlight Repeat guifg=' . g:catppuccin_mocha.red
-  exec 'highlight Label guifg=' . g:catppuccin_mocha.peach
-  exec 'highlight Operator guifg=' . g:catppuccin_mocha.sky
-  exec 'highlight Keyword guifg=' . g:catppuccin_mocha.pink
-  exec 'highlight Exception guifg=' . g:catppuccin_mocha.peach
-  exec 'highlight PreProc guifg=' . g:catppuccin_mocha.pink
-  exec 'highlight Include guifg=' . g:catppuccin_mocha.pink
-  exec 'highlight Define guifg=' . g:catppuccin_mocha.pink
-  exec 'highlight Macro guifg=' . g:catppuccin_mocha.pink
-  exec 'highlight PreCondit guifg=' . g:catppuccin_mocha.pink
-  exec 'highlight Type guifg=' . g:catppuccin_mocha.yellow
-  exec 'highlight StorageClass guifg=' . g:catppuccin_mocha.yellow
-  exec 'highlight Structure guifg=' . g:catppuccin_mocha.yellow
-  exec 'highlight Typedef guifg=' . g:catppuccin_mocha.yellow
-  exec 'highlight Special guifg=' . g:catppuccin_mocha.pink
-  exec 'highlight SpecialChar guifg=' . g:catppuccin_mocha.pink
-  exec 'highlight Tag guifg=' . g:catppuccin_mocha.peach
-  exec 'highlight Delimiter guifg=' . g:catppuccin_mocha.overlay2
-  exec 'highlight SpecialComment guifg=' . g:catppuccin_mocha.overlay1 . ' gui=italic'
-  exec 'highlight Debug guifg=' . g:catppuccin_mocha.peach
-  exec 'highlight Error guifg=' . g:catppuccin_mocha.red
-  exec 'highlight Todo guifg=' . g:catppuccin_mocha.base . ' guibg=' . g:catppuccin_mocha.yellow . ' gui=bold'
-  
-  " Diff colors
-  exec 'highlight DiffAdd guifg=' . g:catppuccin_mocha.green . ' guibg=' . g:catppuccin_mocha.base
-  exec 'highlight DiffChange guifg=' . g:catppuccin_mocha.yellow . ' guibg=' . g:catppuccin_mocha.base
-  exec 'highlight DiffDelete guifg=' . g:catppuccin_mocha.red . ' guibg=' . g:catppuccin_mocha.base
-  exec 'highlight DiffText guifg=' . g:catppuccin_mocha.blue . ' guibg=' . g:catppuccin_mocha.base
-  
-  " Git colors
-  exec 'highlight GitGutterAdd guifg=' . g:catppuccin_mocha.green
-  exec 'highlight GitGutterChange guifg=' . g:catppuccin_mocha.yellow
-  exec 'highlight GitGutterDelete guifg=' . g:catppuccin_mocha.red
-endfunction
-
-" Apply the theme
-call CatppuccinMocha()
+" Apply Catppuccin Mocha colorscheme (after plugins are loaded)
+augroup LoadColorScheme
+    autocmd!
+    autocmd VimEnter * ++nested colorscheme catppuccin_mocha
+augroup END
 
 " ============================================================================
 " Plugin Configurations
 " ============================================================================
 
-" Lightline (status bar)
-let g:lightline = {
-      \ 'colorscheme': 'catppuccin_mocha',
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
-      \ },
-      \ 'component_function': {
-      \   'gitbranch': 'FugitiveHead'
-      \ },
-      \ }
+" Lightline (status bar) - will be configured after colorscheme loads
+augroup LightlineConfig
+    autocmd!
+    autocmd VimEnter * ++nested call SetupLightline()
+augroup END
+
+function! SetupLightline()
+    let g:lightline = {
+          \ 'colorscheme': 'catppuccin_mocha',
+          \ 'active': {
+          \   'left': [ [ 'mode', 'paste' ],
+          \             [ 'readonly', 'filename', 'modified' ] ]
+          \ },
+          \ }
+endfunction
 
 " NERDTree
 let g:NERDTreeShowHidden=1
@@ -244,10 +141,10 @@ autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTa
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') | execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
 
-" Rainbow parentheses (using corrected bright color variants)
+" Rainbow parentheses (using Catppuccin colors)
 let g:rainbow_active = 1
 let g:rainbow_conf = {
-\	'guifgs': ['#f37799', '#ebd391', '#89d88b', '#74a8fc', '#6bd7ca', '#f2aede', '#f38ba8', '#a6e3a1'],
+\	'guifgs': ['#f38ba8', '#fab387', '#f9e2af', '#a6e3a1', '#94e2d5', '#89b4fa', '#cba6f7', '#f5c2e7'],
 \	'ctermfgs': ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta', 'red', 'yellow'],
 \}
 
@@ -362,8 +259,7 @@ nnoremap <leader>f :NERDTreeFind<CR>
 
 " Terminal (Neoterm)
 nnoremap <leader>t :Tnew<CR>
-nnoremap <leader>th :Tnew<CR>
-nnoremap <leader>tv :vnew \| :terminal<CR>
+nnoremap <leader>v :vertical Tnew<CR>
 
 " Buffer navigation
 nnoremap <leader>bn :bnext<CR>
@@ -457,17 +353,51 @@ nnoremap <leader>cn :call CheckNorm()<CR>
 " ============================================================================
 
 if has('terminal')
-    nnoremap <leader>t :terminal<CR>
-    nnoremap <leader>th :split \| terminal<CR>
+    " Horizontal terminal toggle (opens below)
+    nnoremap <leader>h :call ToggleHorizontalTerminal()<CR>
     
-    " Close terminal window with <leader>tx
-    tnoremap <leader>tx <C-\><C-n><C-w>c
+    " Close terminal window 
+    tnoremap <leader>x <C-\><C-n><C-w>c
+    tnoremap <leader>q <C-\><C-n><C-w>c
     
-    " Terminal navigation: Ctrl-j goes up, Ctrl-k goes down
+    " Terminal navigation
     tnoremap <C-j> <C-\><C-n><C-w>k
     tnoremap <C-k> <C-\><C-n><C-w>j
     tnoremap <C-h> <C-\><C-n><C-w>h
     tnoremap <C-l> <C-\><C-n><C-w>l
 endif
+
+" Function to toggle horizontal terminal
+function! ToggleHorizontalTerminal()
+    " Check if there's already a terminal buffer
+    let term_buf = -1
+    for buf in range(1, bufnr('$'))
+        if getbufvar(buf, '&buftype') == 'terminal'
+            let term_buf = buf
+            break
+        endif
+    endfor
+    
+    " If terminal exists, check if it's visible
+    if term_buf != -1
+        let term_win = bufwinnr(term_buf)
+        if term_win != -1
+            " Terminal is visible, close it
+            execute term_win . 'close'
+            return
+        endif
+    endif
+    
+    " Open horizontal terminal at bottom
+    botright split
+    if term_buf != -1
+        " Reuse existing terminal buffer
+        execute 'buffer ' . term_buf
+    else
+        " Create new terminal
+        terminal
+    endif
+    resize 12
+endfunction
 
 
