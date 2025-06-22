@@ -94,7 +94,7 @@ endif
 " Catppuccin Mocha Color Scheme
 " ============================================================================
 
-" Define Catppuccin Mocha colors (matching Alacritty config)
+" Define Catppuccin Mocha colors with corrected bright variants
 let g:catppuccin_mocha = {
     \ 'rosewater': '#f5e0dc',
     \ 'flamingo':  '#f2cdcd',
@@ -122,6 +122,12 @@ let g:catppuccin_mocha = {
     \ 'base':      '#1e1e2e',
     \ 'mantle':    '#181825',
     \ 'crust':     '#11111b',
+    \ 'bright_red':     '#f37799',
+    \ 'bright_green':   '#89d88b',
+    \ 'bright_yellow':  '#ebd391',
+    \ 'bright_blue':    '#74a8fc',
+    \ 'bright_magenta': '#f2aede',
+    \ 'bright_cyan':    '#6bd7ca',
     \ }
 
 " Set terminal colors to match GNOME Terminal/Alacritty
@@ -141,7 +147,7 @@ function! CatppuccinMocha()
     syntax reset
   endif
   
-  let g:colors_name = "catppuccin-mocha"
+  let g:colors_name = "catppuccin_mocha"
   
   " UI Elements
   exec 'highlight Normal guifg=' . g:catppuccin_mocha.text . ' guibg=' . g:catppuccin_mocha.base
@@ -238,10 +244,10 @@ autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTa
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') | execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
 
-" Rainbow parentheses
+" Rainbow parentheses (using corrected bright color variants)
 let g:rainbow_active = 1
 let g:rainbow_conf = {
-\	'guifgs': ['#f38ba8', '#fab387', '#f9e2af', '#a6e3a1', '#94e2d5', '#89b4fa', '#cba6f7', '#f5c2e7'],
+\	'guifgs': ['#f37799', '#ebd391', '#89d88b', '#74a8fc', '#6bd7ca', '#f2aede', '#f38ba8', '#a6e3a1'],
 \	'ctermfgs': ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta', 'red', 'yellow'],
 \}
 

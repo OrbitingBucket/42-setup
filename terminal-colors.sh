@@ -20,13 +20,13 @@ PROFILE_ID=${PROFILE_ID:1:-1} # Remove quotes
 dconf dump /org/gnome/terminal/legacy/profiles:/ > /tmp/gnome-terminal-profiles.dconf
 NEW_PROFILE_ID=$(uuidgen)
 
-# Catppuccin Mocha colors (based on Alacritty config)
+# Catppuccin Mocha colors (corrected with proper bright variants)
 BACKGROUND="#1e1e2e"  # Base
 FOREGROUND="#cdd6f4"  # Text
-# ANSI colors: [normal: 0-7, bright: 8-15]
+# ANSI colors: [normal: 0-7, bright: 8-15] with DISTINCT bright colors
 # Normal:  black, red, green, yellow, blue, magenta, cyan, white
-# Bright:  same colors but from bright section
-PALETTE="['#45475a', '#f38ba8', '#a6e3a1', '#f9e2af', '#89b4fa', '#f5c2e7', '#94e2d5', '#bac2de', '#585b70', '#f38ba8', '#a6e3a1', '#f9e2af', '#89b4fa', '#f5c2e7', '#94e2d5', '#a6adc8']"
+# Bright:  proper bright variants (different from normal colors)
+PALETTE="['#45475a', '#f38ba8', '#a6e3a1', '#f9e2af', '#89b4fa', '#f5c2e7', '#94e2d5', '#a6adc8', '#585b70', '#f37799', '#89d88b', '#ebd391', '#74a8fc', '#f2aede', '#6bd7ca', '#bac2de']"
 
 # Apply colors to current profile
 gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID/ background-color "$BACKGROUND"
