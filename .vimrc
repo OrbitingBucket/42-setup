@@ -1,5 +1,45 @@
 " 42 École Vim Configuration
 " Optimized for École 42 projects and norminette compliance
+" Enhanced with NvChad-like features for modern development
+
+" ============================================================================
+" Plugin Manager (vim-plug)
+" ============================================================================
+
+" Auto-install vim-plug if not present
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+
+" Look & feel
+Plug 'sheerun/vim-polyglot'                    " Syntax for 200+ languages
+Plug 'catppuccin/vim', { 'as': 'catppuccin' } " Catppuccin theme
+Plug 'itchyny/lightline.vim'                   " Status line
+Plug 'bling/vim-bufferline'                    " Buffer tabs
+Plug 'ryanoasis/vim-devicons'                  " File icons (needs Nerd Font)
+
+" File explorer
+Plug 'preservim/nerdtree'                      " File tree
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight' " Syntax colors in NERDTree
+Plug 'Xuyuanp/nerdtree-git-plugin'            " Git status in NERDTree
+
+" Terminal integration
+Plug 'kassio/neoterm'                          " Enhanced terminal
+
+" Editing enhancements
+Plug 'jiangmiao/auto-pairs'                    " Auto-close brackets/quotes
+Plug 'tpope/vim-surround'                      " Surround text with quotes/brackets
+Plug 'preservim/nerdcommenter'                 " Smart commenting
+Plug 'luochen1990/rainbow'                     " Rainbow parentheses
+
+" Optional: Fuzzy finder (needs fzf binary)
+" Plug 'junegunn/fzf.vim'
+
+call plug#end()
 
 " ============================================================================
 " Basic Settings
@@ -54,7 +94,7 @@ endif
 " Catppuccin Mocha Color Scheme
 " ============================================================================
 
-" Define Catppuccin Mocha colors
+" Define Catppuccin Mocha colors (matching Alacritty config)
 let g:catppuccin_mocha = {
     \ 'rosewater': '#f5e0dc',
     \ 'flamingo':  '#f2cdcd',
@@ -83,6 +123,13 @@ let g:catppuccin_mocha = {
     \ 'mantle':    '#181825',
     \ 'crust':     '#11111b',
     \ }
+
+" Set terminal colors to match GNOME Terminal/Alacritty
+set t_Co=256
+if &term =~# '^xterm' || &term =~# '^screen' || &term =~# '^tmux'
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+endif
 
 " Apply Catppuccin Mocha theme
 function! CatppuccinMocha()
@@ -160,6 +207,61 @@ endfunction
 " Apply the theme
 call CatppuccinMocha()
 
+" ============================================================================
+" Plugin Configurations
+" ============================================================================
+
+" Lightline (status bar)
+let g:lightline = {
+      \ 'colorscheme': 'catppuccin_mocha',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'gitbranch': 'FugitiveHead'
+      \ },
+      \ }
+
+" NERDTree
+let g:NERDTreeShowHidden=1
+let g:NERDTreeIgnore = ['\.DS_Store$', '\.git$']
+let g:NERDTreeMinimalUI=1
+let g:NERDTreeDirArrows=1
+let g:NERDTreeShowLineNumbers=0
+let g:NERDTreeWinSize=30
+
+" Auto-close NERDTree if it's the only window left
+autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+
+" Auto-open NERDTree on directory open
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') | execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
+
+" Rainbow parentheses
+let g:rainbow_active = 1
+let g:rainbow_conf = {
+\	'guifgs': ['#f38ba8', '#fab387', '#f9e2af', '#a6e3a1', '#94e2d5', '#89b4fa', '#cba6f7', '#f5c2e7'],
+\	'ctermfgs': ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta', 'red', 'yellow'],
+\}
+
+" Auto-pairs
+let g:AutoPairsShortcutToggle = '<M-p>'
+let g:AutoPairsShortcutFastWrap = '<M-e>'
+
+" NERDCommenter
+let g:NERDSpaceDelims = 1
+let g:NERDCompactSexyComs = 1
+let g:NERDDefaultAlign = 'left'
+let g:NERDCommentEmptyLines = 1
+let g:NERDTrimTrailingWhitespace = 1
+
+" Neoterm
+let g:neoterm_default_mod='botright'
+let g:neoterm_size=10
+let g:neoterm_autoscroll=1
+let g:neoterm_keep_term_open=1
+
 " File handling
 set autoread
 set noswapfile
@@ -236,13 +338,41 @@ inoremap <A-k> <Esc>:m .-2<CR>==gi
 vnoremap <A-j> :m '>+1<CR>gv=gv
 vnoremap <A-k> :m '<-2<CR>gv=gv
 
-" File explorer
-nnoremap <leader>e :Explore<CR>
-nnoremap <leader>E :Vexplore<CR>
+" File explorer (legacy netrw - now replaced by NERDTree)
+" nnoremap <leader>e :Explore<CR>
+" nnoremap <leader>E :Vexplore<CR>
 
 " Quick edit vimrc
 nnoremap <leader>ev :edit $MYVIMRC<CR>
 nnoremap <leader>sv :source $MYVIMRC<CR>
+
+" ============================================================================
+" NvChad-like Key Mappings
+" ============================================================================
+
+" File explorer (NERDTree)
+nnoremap <leader>e :NERDTreeToggle<CR>
+nnoremap <leader>f :NERDTreeFind<CR>
+
+" Terminal (Neoterm)
+nnoremap <leader>t :Tnew<CR>
+nnoremap <leader>th :Tnew<CR>
+nnoremap <leader>tv :vnew \| :terminal<CR>
+
+" Buffer navigation
+nnoremap <leader>bn :bnext<CR>
+nnoremap <leader>bp :bprevious<CR>
+nnoremap <leader>bd :bdelete<CR>
+nnoremap <leader>ba :bufdo bd<CR>
+
+" Quick comment toggle
+nmap <leader>/ <Plug>NERDCommenterToggle
+vmap <leader>/ <Plug>NERDCommenterToggle
+
+" Plugin management
+nnoremap <leader>pi :PlugInstall<CR>
+nnoremap <leader>pu :PlugUpdate<CR>
+nnoremap <leader>pc :PlugClean<CR>
 
 " ============================================================================
 " File Explorer Settings (netrw)

@@ -37,8 +37,8 @@ plugins=(
 # History Configuration
 # ============================================================================
 
-HISTSIZE=50000
-SAVEHIST=50000
+HISTSIZE=100000
+SAVEHIST=100000
 HISTFILE=~/.zsh_history
 
 # History options
