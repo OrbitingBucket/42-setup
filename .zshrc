@@ -323,4 +323,5 @@ if [[ $- == *i* ]]; then
     echo "🎓 Welcome to 42 environment!"
     echo "💡 Quick commands: 42 | code | norm | cc | gs"
     echo "🔧 Type '42new <project>' to create a new project"
+    echo "📝 Note: You're in zsh. Type 'exit' to return to bash."
 fi

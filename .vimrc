@@ -27,8 +27,8 @@ Plug 'preservim/nerdtree'                      " File tree
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight' " Syntax colors in NERDTree
 Plug 'Xuyuanp/nerdtree-git-plugin'            " Git status in NERDTree
 
-" Terminal integration
-Plug 'kassio/neoterm'                          " Enhanced terminal
+" Terminal integration (using built-in Vim 8 terminal)
+" Plug 'kassio/neoterm'                          " Enhanced terminal - disabled
 
 " Editing enhancements
 Plug 'jiangmiao/auto-pairs'                    " Auto-close brackets/quotes
@@ -159,11 +159,11 @@ let g:NERDDefaultAlign = 'left'
 let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 
-" Neoterm
-let g:neoterm_default_mod='botright'
-let g:neoterm_size=10
-let g:neoterm_autoscroll=1
-let g:neoterm_keep_term_open=1
+" Neoterm (disabled to avoid conflicts with built-in terminal)
+" let g:neoterm_default_mod='botright'
+" let g:neoterm_size=10
+" let g:neoterm_autoscroll=1
+" let g:neoterm_keep_term_open=1
 
 " File handling
 set autoread
@@ -257,9 +257,9 @@ nnoremap <leader>sv :source $MYVIMRC<CR>
 nnoremap <leader>e :NERDTreeToggle<CR>
 nnoremap <leader>f :NERDTreeFind<CR>
 
-" Terminal (Neoterm)
-nnoremap <leader>t :Tnew<CR>
-nnoremap <leader>v :vertical Tnew<CR>
+" Terminal (Neoterm) - commented out to avoid conflicts
+" nnoremap <leader>t :Tnew<CR>
+" nnoremap <leader>v :vertical Tnew<CR>
 
 " Buffer navigation
 nnoremap <leader>bn :bnext<CR>
