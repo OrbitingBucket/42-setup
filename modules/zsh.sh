@@ -93,8 +93,17 @@ create_zsh_config() {
         print_module_status "Backed up existing .zshrc"
     fi
     
-    # Create comprehensive .zshrc
-    cat > "$HOME/.zshrc" << 'EOF'
+    # Copy the user's current .zshrc if it exists, otherwise create comprehensive .zshrc
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    local zshrc_source="$script_dir/configs/.zshrc"
+    
+    if [[ -f "$zshrc_source" ]]; then
+        # Use the user's optimized .zshrc
+        cp "$zshrc_source" "$HOME/.zshrc"
+        print_module_status "✅ Installed user's optimized .zshrc"
+    else
+        # Fallback: create comprehensive .zshrc
+        cat > "$HOME/.zshrc" << 'EOF'
 # 42 École Zsh Configuration
 # Enhanced setup for École 42 students
 
@@ -447,8 +456,8 @@ if [[ $- == *i* ]]; then
     echo ""
 fi
 EOF
-    
-    print_module_status "✅ Enhanced .zshrc created"
+        print_module_status "✅ Enhanced .zshrc created"
+    fi
 }
 
 create_bash_integration() {

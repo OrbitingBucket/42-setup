@@ -64,7 +64,20 @@ install_vim_plug() {
 create_vim_config() {
     print_module_status "Creating enhanced Vim configuration..."
     
-    # Create clean .vimrc configuration
+    # Check if we have the enhanced .vimrc in the repo
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local vimrc_source="$script_dir/../.vimrc"
+    
+    if [[ -f "$vimrc_source" ]]; then
+        print_module_status "Using enhanced .vimrc from repository..."
+        cp "$vimrc_source" "$HOME/.vimrc"
+        print_module_status "✅ Enhanced .vimrc installed"
+        return 0
+    fi
+    
+    print_module_status "Repository .vimrc not found, creating fallback configuration..."
+    
+    # Create fallback .vimrc configuration
     cat > "$HOME/.vimrc" << 'EOF'
 " 42 École Vim Configuration
 " Enhanced with NvChad-like features for modern development
@@ -444,6 +457,15 @@ install_vim_plugins() {
     if ! command -v vim >/dev/null 2>&1; then
         print_module_error "Vim not found"
         return 1
+    fi
+    
+    # Create required directories
+    mkdir -p "$HOME/.vim/undo"
+    
+    # Check if xclip is available for clipboard support
+    if ! command -v xclip >/dev/null 2>&1; then
+        print_module_warning "xclip not found - clipboard integration may not work"
+        print_module_status "Install xclip for clipboard support: sudo apt install xclip"
     fi
     
     # Install plugins using vim-plug

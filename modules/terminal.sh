@@ -97,60 +97,72 @@ install_jetbrains_mono_font() {
 configure_gnome_terminal_colors() {
     print_module_status "Configuring GNOME Terminal colors..."
     
-    # Check if we're in a GNOME environment
-    if [[ "$XDG_CURRENT_DESKTOP" != *"GNOME"* ]] && [[ -z "$GNOME_TERMINAL_SERVICE" ]]; then
-        print_module_warning "Not in GNOME environment, skipping GNOME Terminal configuration"
+    # Check if dconf is available (more reliable than checking desktop environment)
+    if ! command -v dconf >/dev/null 2>&1; then
+        print_module_warning "dconf not available, skipping GNOME Terminal configuration"
         return 1
     fi
     
-    # Check if GNOME Terminal is available
-    if ! command -v gnome-terminal >/dev/null 2>&1; then
-        print_module_warning "GNOME Terminal not found, skipping color configuration"
-        return 1
-    fi
+    # Create a new Catppuccin Mocha profile
+    local new_profile_id=$(uuidgen)
+    local profile_path="/org/gnome/terminal/legacy/profiles:/:$new_profile_id/"
     
-    # Get current profile ID
-    local profile_id
-    if command -v gsettings >/dev/null 2>&1; then
-        # Try to get the default profile
-        profile_id=$(gsettings get org.gnome.Terminal.ProfilesList default 2>/dev/null | tr -d "'")
-        
-        # If no default, get the first available profile
-        if [[ -z "$profile_id" ]] || [[ "$profile_id" == "''" ]]; then
-            local profiles_list=$(gsettings get org.gnome.Terminal.ProfilesList list 2>/dev/null | tr -d "[]'")
-            profile_id=$(echo "$profiles_list" | cut -d',' -f1 | tr -d ' ')
-        fi
-        
-        if [[ -n "$profile_id" ]] && [[ "$profile_id" != "''" ]]; then
-            print_module_status "Configuring profile: $profile_id"
-            
-            local profile_path="org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile_id/"
-            
-            # Apply Catppuccin Mocha color scheme
-            gsettings set "$profile_path" background-color "'$BACKGROUND_COLOR'" 2>/dev/null || true
-            gsettings set "$profile_path" foreground-color "'$FOREGROUND_COLOR'" 2>/dev/null || true
-            gsettings set "$profile_path" palette "$CATPPUCCIN_MOCHA_PALETTE" 2>/dev/null || true
-            gsettings set "$profile_path" use-theme-colors false 2>/dev/null || true
-            gsettings set "$profile_path" use-theme-transparency false 2>/dev/null || true
-            
-            # Set font
-            gsettings set "$profile_path" font "'JetBrainsMono Nerd Font 12'" 2>/dev/null || true
-            gsettings set "$profile_path" use-system-font false 2>/dev/null || true
-            
-            # Set profile name
-            gsettings set "$profile_path" visible-name "'42-Catppuccin'" 2>/dev/null || true
-            
-            print_module_status "✅ GNOME Terminal colors configured"
-            print_module_status "💡 Restart terminal or open new tab to see changes"
-            return 0
-        else
-            print_module_warning "Could not get GNOME Terminal profile ID"
-            return 1
-        fi
+    print_module_status "Creating Catppuccin Mocha profile: $new_profile_id"
+    
+    # Set the profile configuration using dconf
+    dconf write "$profile_path"background-color "'$BACKGROUND_COLOR'" 2>/dev/null || true
+    dconf write "$profile_path"foreground-color "'$FOREGROUND_COLOR'" 2>/dev/null || true
+    dconf write "$profile_path"palette "$CATPPUCCIN_MOCHA_PALETTE" 2>/dev/null || true
+    dconf write "$profile_path"use-theme-colors false 2>/dev/null || true
+    dconf write "$profile_path"use-system-font false 2>/dev/null || true
+    dconf write "$profile_path"font "'JetBrainsMono Nerd Font 12'" 2>/dev/null || true
+    dconf write "$profile_path"visible-name "'Catppuccin Mocha'" 2>/dev/null || true
+    dconf write "$profile_path"bold-is-bright true 2>/dev/null || true
+    dconf write "$profile_path"cursor-colors-set true 2>/dev/null || true
+    dconf write "$profile_path"cursor-background-color "'#f5e0dc'" 2>/dev/null || true
+    dconf write "$profile_path"cursor-foreground-color "'#1e1e2e'" 2>/dev/null || true
+    dconf write "$profile_path"highlight-colors-set true 2>/dev/null || true
+    dconf write "$profile_path"highlight-background-color "'#f5e0dc'" 2>/dev/null || true
+    dconf write "$profile_path"highlight-foreground-color "'#585b70'" 2>/dev/null || true
+    
+    # Add the new profile to the profiles list
+    local current_list=$(dconf read /org/gnome/terminal/legacy/profiles:/list 2>/dev/null || echo "[]")
+    if [[ "$current_list" == "[]" ]] || [[ -z "$current_list" ]]; then
+        dconf write /org/gnome/terminal/legacy/profiles:/list "['$new_profile_id']" 2>/dev/null || true
     else
-        print_module_warning "gsettings not available, skipping GNOME Terminal configuration"
-        return 1
+        # Add to existing list
+        local updated_list=$(echo "$current_list" | sed "s/\]/, '$new_profile_id']/")
+        dconf write /org/gnome/terminal/legacy/profiles:/list "$updated_list" 2>/dev/null || true
     fi
+    
+    # Set as default profile
+    dconf write /org/gnome/terminal/legacy/profiles:/default "'$new_profile_id'" 2>/dev/null || true
+    
+    print_module_status "✅ GNOME Terminal Catppuccin Mocha profile created and set as default"
+    print_module_status "💡 Restart terminal or open new tab to see changes"
+    
+    # Also try to configure existing profiles as fallback
+    if command -v gsettings >/dev/null 2>&1; then
+        local existing_profiles=$(gsettings get org.gnome.Terminal.ProfilesList list 2>/dev/null | tr -d "[]'," | tr ' ' '\n')
+        
+        for profile_id in $existing_profiles; do
+            if [[ -n "$profile_id" ]]; then
+                local profile_path="org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$profile_id/"
+                
+                # Apply colors to existing profile too
+                gsettings set "$profile_path" background-color "'$BACKGROUND_COLOR'" 2>/dev/null || true
+                gsettings set "$profile_path" foreground-color "'$FOREGROUND_COLOR'" 2>/dev/null || true
+                gsettings set "$profile_path" palette "$CATPPUCCIN_MOCHA_PALETTE" 2>/dev/null || true
+                gsettings set "$profile_path" use-theme-colors false 2>/dev/null || true
+                gsettings set "$profile_path" font "'JetBrainsMono Nerd Font 12'" 2>/dev/null || true
+                gsettings set "$profile_path" use-system-font false 2>/dev/null || true
+            fi
+        done
+        
+        print_module_status "✅ Updated existing terminal profiles"
+    fi
+    
+    return 0
 }
 
 create_color_reference_file() {

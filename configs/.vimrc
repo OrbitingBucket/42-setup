@@ -19,6 +19,9 @@ Plug 'jiangmiao/auto-pairs'                     " Auto-close brackets/quotes
 Plug 'tpope/vim-surround'                       " Surround text with quotes/brackets
 Plug 'preservim/nerdcommenter'                  " Smart commenting
 
+" Indentation guides
+Plug 'Yggdroot/indentLine'                      " Smart indent guides
+
 " Buffer line (add this)
 Plug 'ap/vim-buftabline'
 
@@ -125,15 +128,27 @@ set confirm                        " Use dialog for confirmations instead of com
 
 " Completely disable terminal job confirmations
 if has('terminal')
-    " Create terminals with specific options to avoid job confirmations
+    " Set terminal to never ask about jobs
     set termwinkey=<C-L>           " Use Ctrl-L as terminal escape key
     
-    " Create a custom quit command that always forces quit
-    command! Q q!
-    command! Qa qa!
-    command! QA qa!
-    command! Quit quit!
-    command! Qall qall!
+    " Kill all terminal jobs before any quit operation
+    augroup ForceKillTerminals
+        autocmd!
+        autocmd VimLeavePre * call KillAllTerminalJobsForce()
+        autocmd QuitPre * call KillAllTerminalJobsForce()
+    augroup END
+    
+    function! KillAllTerminalJobsForce()
+        for buf in range(1, bufnr('$'))
+            if bufexists(buf) && getbufvar(buf, '&buftype') ==# 'terminal'
+                let job = term_getjob(buf)
+                if job != v:null
+                    call job_stop(job, 'kill')
+                endif
+                execute 'bwipeout! ' . buf
+            endif
+        endfor
+    endfunction
 endif
 
 " Better search
@@ -177,13 +192,27 @@ let g:NERDTreeWinSize=30
 let g:NERDTreeAutoDeleteBuffer=1
 let g:NERDTreeMinimalUI=1
 let g:NERDTreeDirArrows=1
+let g:NERDTreeQuitOnOpen=0
 
-" Custom NERDTree mappings
+
+" Custom NERDTree mappings  
 augroup NERDTreeCustom
     autocmd!
     autocmd FileType nerdtree nmap <buffer> a ma
     autocmd FileType nerdtree nmap <buffer> d md
     autocmd FileType nerdtree nmap <buffer> r mr
+augroup END
+
+" Additional settings for better workflow
+let g:NERDTreeMapOpenInTab='<C-t>'
+let g:NERDTreeMapOpenSplit='<C-s>'  
+let g:NERDTreeMapOpenVSplit='<C-v>'
+
+" Auto-expand directories and open files after creation
+augroup NERDTreeAutoExpand
+    autocmd!
+    " After creating files/directories, refresh and try to expand
+    autocmd BufWritePost * if exists('t:NERDTreeBufName') && bufwinnr(t:NERDTreeBufName) != -1 | call NERDTreeFocus() | execute "normal R" | wincmd p | endif
 augroup END
 
 " FZF Configuration
@@ -210,6 +239,23 @@ let g:NERDDefaultAlign = 'left'
 let g:NERDCompactSexyComs = 1
 let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
+
+" indentLine configuration
+let g:indentLine_char = '┊'
+let g:indentLine_color_gui = '#383747'
+let g:indentLine_color_term = 8
+let g:indentLine_enabled = 1
+let g:indentLine_fileTypeExclude = ['help', 'nerdtree', 'text', 'markdown']
+let g:indentLine_bufTypeExclude = ['terminal']
+let g:indentLine_setConceal = 0
+let g:indentLine_faster = 1
+
+" Debug mappings for indentLine
+nnoremap <leader>id :echo "indentLine enabled: " . g:indentLine_enabled<CR>
+nnoremap <leader>ie :IndentLinesEnable<CR>
+nnoremap <leader>it :IndentLinesToggle<CR>
+
+
 
 " ============================================================================
 " Key Mappings
@@ -427,6 +473,23 @@ tnoremap <C-j> <C-\><C-n><C-w>j
 tnoremap <C-k> <C-\><C-n><C-w>k
 tnoremap <C-l> <C-\><C-n><C-w>l
 
+" Smart window navigation that enters insert mode when moving TO terminal
+nnoremap <C-h> :call SmartWindowMove('h')<CR>
+nnoremap <C-j> :call SmartWindowMove('j')<CR>
+nnoremap <C-k> :call SmartWindowMove('k')<CR>
+nnoremap <C-l> :call SmartWindowMove('l')<CR>
+
+function! SmartWindowMove(direction)
+    " Move to the window in the specified direction
+    execute 'wincmd ' . a:direction
+    
+    " If we're now in a terminal, enter insert mode
+    if &buftype ==# 'terminal'
+        " Try feedkeys approach - simulate pressing 'i'
+        call feedkeys('i', 'n')
+    endif
+endfunction
+
 " Terminal settings
 augroup TerminalSettings
     autocmd!
@@ -443,6 +506,25 @@ augroup END
 " Highlight 80-character limit (École 42 norm)
 highlight OverLength ctermbg=red ctermfg=white guibg=#ff6b6b guifg=#ffffff
 match OverLength /\%81v.\+/
+
+" Highlight trailing whitespace with Catppuccin colors
+highlight TrailingWhitespace guibg=#45475a ctermbg=8
+augroup TrailingWhitespace
+    autocmd!
+    " Ensure highlight group exists after colorscheme loads
+    autocmd ColorScheme * highlight TrailingWhitespace guibg=#45475a ctermbg=8
+    " Match trailing whitespace on all buffers
+    autocmd BufWinEnter * match TrailingWhitespace /\s\+$/
+    " Clear matches when entering insert mode, restore when leaving
+    autocmd InsertEnter * match none
+    autocmd InsertLeave * match TrailingWhitespace /\s\+$/
+augroup END
+
+" Show tabs and trailing whitespace alongside indentLine
+set list
+set listchars=tab:▸\ ,trail:·,extends:>,precedes:<,nbsp:+
+" Highlight special characters with subtle color
+highlight SpecialKey guifg=#383747 ctermfg=8
 
 " École 42 header
 function! Insert42Header()

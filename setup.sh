@@ -4,7 +4,7 @@
 # Usage: curl -sSL https://raw.githubusercontent.com/OrbitingBucket/42-setup/main/setup.sh | bash
 # GitHub: https://github.com/OrbitingBucket/42-setup
 
-set -e  # Exit on any error
+# Removed set -e to allow continuation on module failures
 
 # ============================================================================
 # Configuration
@@ -187,7 +187,6 @@ show_completion_message() {
     echo "   source ~/.bashrc          # Reload bash configuration"
     echo "   42                        # Go to projects directory"
     echo "   vim test.c                # Test enhanced Vim setup"
-    echo "   zsh                       # Optional: try Zsh (type 'exit' to return)"
     echo ""
     echo -e "${CYAN}📚 Key Commands:${NC}"
     echo "   <space>h                  # Toggle terminal in Vim"
