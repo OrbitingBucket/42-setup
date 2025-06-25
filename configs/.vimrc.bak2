@@ -1,0 +1,630 @@
+" ============================================================================
+" Plugin Manager (vim-plug)
+" ============================================================================
+
+call plug#begin('~/.vim/plugged')
+
+" Look & feel
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }  " Catppuccin theme
+Plug 'itchyny/lightline.vim'                    " Status line
+Plug 'sheerun/vim-polyglot'                     " Syntax for 200+ languages
+
+" File explorer & fuzzy finder
+Plug 'preservim/nerdtree'                       " File tree
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }  " FZF binary
+Plug 'junegunn/fzf.vim'                         " FZF vim integration
+
+" Editing enhancements
+Plug 'jiangmiao/auto-pairs'                     " Auto-close brackets/quotes
+Plug 'tpope/vim-surround'                       " Surround text with quotes/brackets
+Plug 'preservim/nerdcommenter'                  " Smart commenting
+
+" Indentation guides
+Plug 'Yggdroot/indentLine'                      " Smart indent guides
+
+" Buffer line (add this)
+Plug 'ap/vim-buftabline'
+
+call plug#end()
+
+" Set leader key FIRST
+let mapleader = " "
+
+" Buftabline configuration (add after your plugin configs)
+let g:buftabline_show = 2          " Always show buffer line
+let g:buftabline_numbers = 2       " Show buffer numbers
+let g:buftabline_indicators = 1    " Show + for modified buffers
+let g:buftabline_separators = 1    " Add separators between buffers
+
+" ============================================================================
+" Basic Settings
+" ============================================================================
+
+" Enable syntax highlighting
+syntax enable
+syntax on
+
+" Enable file type detection
+filetype on
+filetype plugin on
+filetype indent on
+
+" Line numbers
+set number
+
+" 42 École settings (tabs = 4 spaces, no expansion)
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set noexpandtab
+set smartindent
+set autoindent
+
+" Search settings
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
+
+" Interface
+set mouse=a
+set showmatch
+set ruler
+set showcmd
+set laststatus=2
+
+" Remove tilde symbols for empty lines
+set fillchars=eob:\ 
+
+" Editing behavior
+set backspace=indent,eol,start
+set wrap
+set linebreak
+set scrolloff=8
+set sidescrolloff=8
+
+" Enable 24-bit colors
+if has('termguicolors')
+  set termguicolors
+endif
+
+" Clipboard integration using external tools
+" Since this Vim doesn't have +clipboard, use xclip/xsel
+
+" Function to copy to system clipboard
+function! ClipboardYank()
+    call system('xclip -i -selection clipboard', @@)
+endfunction
+
+" Function to paste from system clipboard  
+function! ClipboardPaste()
+    let @@ = system('xclip -o -selection clipboard')
+endfunction
+
+" Copy to clipboard with <leader>y
+vnoremap <leader>y :call ClipboardYank()<CR>
+nnoremap <leader>y :call ClipboardYank()<CR>
+
+" Paste from clipboard with <leader>p
+nnoremap <leader>p :call ClipboardPaste()<CR>p
+vnoremap <leader>p :call ClipboardPaste()<CR>p
+
+" Auto-copy visual selections to clipboard
+vnoremap y ygv:call ClipboardYank()<CR>
+
+" Better file handling
+set hidden                " Allow switching buffers without saving
+set confirm               " Ask before closing unsaved files
+set autoread              " Auto-reload files changed outside vim
+set noswapfile            " Disable swap files
+set nobackup              " Disable backup files
+set undofile              " Enable persistent undo
+set undodir=~/.vim/undo   " Undo directory
+
+" Terminal job handling - disable all confirmations
+set noshelltemp                    " Don't use temp files for shell commands
+set shortmess+=A                   " Don't show "ATTENTION" messages
+set confirm                        " Use dialog for confirmations instead of command line
+
+" Completely disable terminal job confirmations
+if has('terminal')
+    " Set terminal to never ask about jobs
+    set termwinkey=<C-L>           " Use Ctrl-L as terminal escape key
+    
+    " Kill all terminal jobs before any quit operation
+    augroup ForceKillTerminals
+        autocmd!
+        autocmd VimLeavePre * call KillAllTerminalJobsForce()
+        autocmd QuitPre * call KillAllTerminalJobsForce()
+    augroup END
+    
+    function! KillAllTerminalJobsForce()
+        for buf in range(1, bufnr('$'))
+            if bufexists(buf) && getbufvar(buf, '&buftype') ==# 'terminal'
+                let job = term_getjob(buf)
+                if job != v:null
+                    call job_stop(job, 'kill')
+                endif
+                execute 'bwipeout! ' . buf
+            endif
+        endfor
+    endfunction
+endif
+
+" Better search
+set wildmenu              " Enhanced command completion
+set wildmode=longest:full,full
+set path+=**              " Search down into subfolders
+
+" Performance
+set lazyredraw            " Don't redraw during macros
+set ttyfast               " Faster terminal connection
+
+" ============================================================================
+" Catppuccin Theme Configuration
+" ============================================================================
+
+" Set background
+set background=dark
+
+" Apply Catppuccin Mocha (after plugins load)
+augroup LoadColorScheme
+    autocmd!
+    autocmd VimEnter * ++nested try | colorscheme catppuccin_mocha | catch | endtry
+augroup END
+
+" ============================================================================
+" Plugin Configurations
+" ============================================================================
+
+" Lightline (status bar)
+let g:lightline = {
+      \ 'colorscheme': 'catppuccin_mocha',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ }
+
+" NERDTree configuration
+let g:NERDTreeShowHidden=1
+let g:NERDTreeWinSize=30
+let g:NERDTreeAutoDeleteBuffer=1
+let g:NERDTreeMinimalUI=1
+let g:NERDTreeDirArrows=1
+let g:NERDTreeQuitOnOpen=0
+
+
+" Custom NERDTree mappings  
+augroup NERDTreeCustom
+    autocmd!
+    autocmd FileType nerdtree nmap <buffer> a ma
+    autocmd FileType nerdtree nmap <buffer> d md
+    autocmd FileType nerdtree nmap <buffer> r mr
+augroup END
+
+" Additional settings for better workflow
+let g:NERDTreeMapOpenInTab='<C-t>'
+let g:NERDTreeMapOpenSplit='<C-s>'  
+let g:NERDTreeMapOpenVSplit='<C-v>'
+
+" Auto-expand directories and open files after creation
+augroup NERDTreeAutoExpand
+    autocmd!
+    " After creating files/directories, refresh and try to expand
+    autocmd BufWritePost * if exists('t:NERDTreeBufName') && bufwinnr(t:NERDTreeBufName) != -1 | call NERDTreeFocus() | execute "normal R" | wincmd p | endif
+augroup END
+
+" FZF Configuration
+let g:fzf_preview_window = 'right:50%'
+let g:fzf_layout = { 'down': '~40%' }
+let g:fzf_colors = {
+  \ 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+
+" NERDCommenter
+let g:NERDSpaceDelims = 1
+let g:NERDDefaultAlign = 'left'
+let g:NERDCompactSexyComs = 1
+let g:NERDCommentEmptyLines = 1
+let g:NERDTrimTrailingWhitespace = 1
+
+" indentLine configuration
+let g:indentLine_char = '┊'
+let g:indentLine_color_gui = '#383747'
+let g:indentLine_color_term = 8
+let g:indentLine_enabled = 1
+let g:indentLine_fileTypeExclude = ['help', 'nerdtree', 'text', 'markdown']
+let g:indentLine_bufTypeExclude = ['terminal']
+let g:indentLine_setConceal = 0
+let g:indentLine_faster = 1
+
+" Debug mappings for indentLine
+nnoremap <leader>id :echo "indentLine enabled: " . g:indentLine_enabled<CR>
+nnoremap <leader>ie :IndentLinesEnable<CR>
+nnoremap <leader>it :IndentLinesToggle<CR>
+
+
+
+" ============================================================================
+" Key Mappings
+" ============================================================================
+
+" Quick commands
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <leader>W :wa<CR>
+nnoremap <leader>Q :qa<CR>
+
+" Clear search highlighting
+nnoremap <silent> <leader>/ :nohlsearch<CR>
+
+" File explorer (NERDTree)
+nnoremap <leader>e :NERDTreeToggle<CR>
+nnoremap <leader>nf :NERDTreeFind<CR>
+
+" FZF key bindings
+nnoremap <leader>f :Files<CR>
+nnoremap <leader>b :Buffers<CR>
+nnoremap <leader>l :Lines<CR>
+nnoremap <leader>rg :Rg<CR>
+
+" Buffer navigation
+nnoremap <leader>bn :bnext<CR>
+nnoremap <leader>bp :bprevious<CR>
+nnoremap <leader>bd :bdelete<CR>
+
+" Comments
+nmap <leader>c <Plug>NERDCommenterToggle
+vmap <leader>c <Plug>NERDCommenterToggle
+
+" Window navigation
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Better indentation in visual mode
+vnoremap < <gv
+vnoremap > >gv
+
+" Move lines up/down
+nnoremap <A-j> :m .+1<CR>==
+nnoremap <A-k> :m .-2<CR>==
+vnoremap <A-j> :m '>+1<CR>gv=gv
+vnoremap <A-k> :m '<-2<CR>gv=gv
+
+" Clipboard mappings (backup if automatic doesn't work)
+nnoremap <leader>y "+y
+vnoremap <leader>y "+y
+nnoremap <leader>p "+p
+
+" ============================================================================
+" Enhanced Insert Mode Navigation (like Neovim)
+" ============================================================================
+
+" Exit insert mode easily
+inoremap jk <Esc>
+
+" Insert mode navigation: exit insert, move, re-enter insert
+" Note: Ctrl+h works as backspace (standard behavior) - keeping it
+inoremap <C-l> <Esc>la
+inoremap <C-j> <Esc>ja
+inoremap <C-k> <Esc>ka
+
+" Special insert mode commands (like Neovim)
+" Alt+Enter: Jump to matching } and open new line after it
+" Try different Alt+Enter variations for terminal compatibility
+inoremap <M-CR> <Esc>:call JumpToClosingBracket()<CR>
+inoremap <A-CR> <Esc>:call JumpToClosingBracket()<CR>
+inoremap <ESC><CR> <Esc>:call JumpToClosingBracket()<CR>
+
+" Ctrl+End: Jump to end of file and open new line
+inoremap <C-End> <Esc>Go
+
+" Function to jump to matching closing bracket and open new line
+function! JumpToClosingBracket()
+    " Save current position
+    let save_pos = getpos('.')
+    
+    " Search backwards for the nearest opening bracket
+    let found = search('{', 'bW')
+    
+    if found > 0
+        " Found opening bracket, now find its matching closing bracket
+        normal! %
+        " Check if we're actually on a closing bracket
+        if getline('.')[col('.') - 1] == '}'
+            " Open new line after the closing bracket
+            normal! o
+            startinsert
+        else
+            " Something went wrong, fallback
+            call setpos('.', save_pos)
+            normal! o
+            startinsert
+        endif
+    else
+        " No opening bracket found, just open new line at current position
+        call setpos('.', save_pos)
+        normal! o
+        startinsert
+    endif
+endfunction
+
+" ============================================================================
+" Terminal Configuration
+" ============================================================================
+
+" Toggle horizontal terminal function
+function! ToggleHorizontalTerminal()
+    " Close any existing terminal window and kill its job
+    for i in range(1, winnr('$'))
+        if getwinvar(i, '&buftype') == 'terminal'
+            let bufnr = winbufnr(i)
+            " Kill the terminal job forcefully
+            if has('terminal') && exists('*term_getjob')
+                let job = term_getjob(bufnr)
+                if job != v:null
+                    call job_stop(job, 'kill')
+                endif
+            endif
+            execute i . 'close'
+            return
+        endif
+    endfor
+
+    " Create clean terminal with correct command
+    botright terminal ++rows=15
+    startinsert
+endfunction
+
+" Vertical terminal toggle function
+function! ToggleVerticalTerminal()
+    " Close any existing vertical terminal window
+    for i in range(1, winnr('$'))
+        if getwinvar(i, '&buftype') == 'terminal' && winwidth(i) < &columns
+            let bufnr = winbufnr(i)
+            " Kill the terminal job forcefully
+            if has('terminal') && exists('*term_getjob')
+                let job = term_getjob(bufnr)
+                if job != v:null
+                    call job_stop(job, 'kill')
+                endif
+            endif
+            execute i . 'close'
+            return
+        endif
+    endfor
+
+    " Create vertical terminal
+    vertical terminal ++cols=80
+    startinsert
+endfunction
+
+" Floating terminal toggle function (simulated with small window)
+function! ToggleFloatingTerminal()
+    " Look for floating-style terminal (small centered window)
+    for i in range(1, winnr('$'))
+        if getwinvar(i, '&buftype') == 'terminal' && winheight(i) < 20 && winwidth(i) < 100
+            let bufnr = winbufnr(i)
+            " Kill the terminal job forcefully
+            if has('terminal') && exists('*term_getjob')
+                let job = term_getjob(bufnr)
+                if job != v:null
+                    call job_stop(job, 'kill')
+                endif
+            endif
+            execute i . 'close'
+            return
+        endif
+    endfor
+
+    " Create floating-style terminal (centered, smaller)
+    " Calculate center position
+    let width = min([80, &columns - 10])
+    let height = min([20, &lines - 10])
+    
+    " Open in top-right corner (simulating floating)
+    execute 'topleft ' . height . 'split'
+    execute 'vertical resize ' . width
+    terminal
+    startinsert
+endfunction
+
+" Terminal key mappings
+nnoremap <leader>h :call ToggleHorizontalTerminal()<CR>
+nnoremap <leader>v :call ToggleVerticalTerminal()<CR>
+
+" Alt terminal toggles (like Neovim)
+nnoremap <A-h> :call ToggleHorizontalTerminal()<CR>
+nnoremap <A-v> :call ToggleVerticalTerminal()<CR>
+nnoremap <A-i> :call ToggleFloatingTerminal()<CR>
+
+" Also work from terminal mode
+tnoremap <A-h> <C-\><C-n>:call ToggleHorizontalTerminal()<CR>
+tnoremap <A-v> <C-\><C-n>:call ToggleVerticalTerminal()<CR>
+tnoremap <A-i> <C-\><C-n>:call ToggleFloatingTerminal()<CR>
+
+" Terminal mode key mappings
+" Exit terminal mode with Escape
+tnoremap <Esc> <C-\><C-n>
+
+" Window navigation from terminal mode
+tnoremap <C-w>h <C-\><C-n><C-w>h
+tnoremap <C-w>j <C-\><C-n><C-w>j
+tnoremap <C-w>k <C-\><C-n><C-w>k
+tnoremap <C-w>l <C-\><C-n><C-w>l
+
+" Quick window navigation from terminal
+tnoremap <C-h> <C-\><C-n><C-w>h
+tnoremap <C-j> <C-\><C-n><C-w>j
+tnoremap <C-k> <C-\><C-n><C-w>k
+tnoremap <C-l> <C-\><C-n><C-w>l
+
+" Smart window navigation that enters insert mode when moving TO terminal
+nnoremap <C-h> :call SmartWindowMove('h')<CR>
+nnoremap <C-j> :call SmartWindowMove('j')<CR>
+nnoremap <C-k> :call SmartWindowMove('k')<CR>
+nnoremap <C-l> :call SmartWindowMove('l')<CR>
+
+function! SmartWindowMove(direction)
+    " Move to the window in the specified direction
+    execute 'wincmd ' . a:direction
+    
+    " If we're now in a terminal, enter insert mode
+    if &buftype ==# 'terminal'
+        " Try feedkeys approach - simulate pressing 'i'
+        call feedkeys('i', 'n')
+    endif
+endfunction
+
+" Terminal settings
+augroup TerminalSettings
+    autocmd!
+    " Auto-enter insert mode when switching to terminal
+    autocmd BufWinEnter,WinEnter term://* startinsert
+    " Remove line numbers from terminal buffers
+    autocmd BufEnter * if &buftype == 'terminal' | setlocal nonumber norelativenumber | endif
+augroup END
+
+" ============================================================================
+" 42 École Specific Features
+" ============================================================================
+
+" Highlight 80-character limit (École 42 norm)
+highlight OverLength ctermbg=red ctermfg=white guibg=#ff6b6b guifg=#ffffff
+match OverLength /\%81v.\+/
+
+" Highlight trailing whitespace with Catppuccin colors
+highlight TrailingWhitespace guibg=#45475a ctermbg=8
+augroup TrailingWhitespace
+    autocmd!
+    " Ensure highlight group exists after colorscheme loads
+    autocmd ColorScheme * highlight TrailingWhitespace guibg=#45475a ctermbg=8
+    " Match trailing whitespace on all buffers
+    autocmd BufWinEnter * match TrailingWhitespace /\s\+$/
+    " Clear matches when entering insert mode, restore when leaving
+    autocmd InsertEnter * match none
+    autocmd InsertLeave * match TrailingWhitespace /\s\+$/
+augroup END
+
+" Show tabs and trailing whitespace alongside indentLine
+set list
+set listchars=tab:▸\ ,trail:·,extends:>,precedes:<,nbsp:+
+" Highlight special characters with subtle color
+highlight SpecialKey guifg=#383747 ctermfg=8
+
+" École 42 header
+function! Insert42Header()
+    let filename = expand('%:t')
+    let author = "blakcmirror"
+    let mail = author . "@student.42.fr"
+    let date_created = strftime('%Y/%m/%d')
+    let time_created = strftime('%H:%M:%S')
+    let datetime = strftime('%Y/%m/%d %H:%M:%S')
+
+    " Calculate spacing for filename line
+    let filename_spaces = 50 - len(filename)
+    if filename_spaces < 0
+        let filename_spaces = 0
+    endif
+
+    " Calculate spacing for author line
+    let author_email = author . " <" . mail . ">"
+    let author_spaces = 42 - len(author_email)
+    if author_spaces < 0
+        let author_spaces = 0
+    endif
+
+    call append(0, "/* ************************************************************************** */")
+    call append(1, "/*                                                                            */")
+    call append(2, "/*                                                        :::      ::::::::   */")
+    call append(3, "/*   " . filename . repeat(' ', filename_spaces) . " :+:      :+:    :+:   */")
+    call append(4, "/*                                                    +:+ +:+         +:+     */")
+    call append(5, "/*   By: " . author_email . repeat(' ', author_spaces) . " +#+  +:+       +#+        */")
+    call append(6, "/*                                                +#+#+#+#+#+   +#+           */")
+    call append(7, "/*   Created: " . date_created . " " . time_created . " by " . author . "       #+#    #+#             */")
+    call append(8, "/*   Updated: " . datetime . " by " . author . "      ###   ########.fr       */")
+    call append(9, "/*                                                                            */")
+    call append(10, "/* ************************************************************************** */")
+    call append(11, "")
+endfunction
+
+" Compile C files
+function! CompileC()
+    if &filetype == 'c'
+        let filename = expand('%:r')
+        execute '!gcc -Wall -Wextra -Werror -o ' . filename . ' ' . expand('%')
+    else
+        echo "Not a C file!"
+    endif
+endfunction
+
+" Check norminette
+function! CheckNorm()
+    if &filetype == 'c' || &filetype == 'cpp'
+        execute '!norminette ' . expand('%')
+    else
+        echo "Not a C/C++ file!"
+    endif
+endfunction
+
+" 42 mappings
+nnoremap <F1> :call Insert42Header()<CR>
+nnoremap <leader>cc :call CompileC()<CR>
+nnoremap <leader>cn :call CheckNorm()<CR>
+
+" ============================================================================
+" Auto Commands
+" ============================================================================
+
+augroup MyAutoCommands
+    autocmd!
+    " Return to last edit position when opening files
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+    " Remove trailing whitespace on save
+    autocmd BufWritePre * :%s/\s\+$//e
+
+    " Auto-reload vimrc when saved
+    autocmd BufWritePost $MYVIMRC source $MYVIMRC
+
+    " Set file format for C files
+    autocmd BufWritePre *.c,*.h set fileformat=unix
+    autocmd BufWritePre *.c,*.h set fileencoding=utf-8
+augroup END
+
+" Keep NERDTree open when opening files
+let g:NERDTreeQuitOnOpen = 0
+
+" Tab navigation
+nnoremap <Tab> gt
+nnoremap <S-Tab> gT
+
+" Close current tab
+nnoremap <C-w> :tabclose<CR>
+
+" Buffer navigation
+nnoremap <Tab> :bnext<CR>
+nnoremap <S-Tab> :bprevious<CR>
+nnoremap <leader>bd :bdelete<CR>
+nnoremap <leader>bl :ls<CR>
+
+" Quick buffer switching
+nnoremap <leader>1 :b1<CR>
+nnoremap <leader>2 :b2<CR>
+nnoremap <leader>3 :b3<CR>
+nnoremap <leader>4 :b4<CR>
+nnoremap <leader>5 :b5<CR>
